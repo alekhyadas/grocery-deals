@@ -35,7 +35,7 @@ main{padding:12px 16px 40px;display:grid;gap:10px;max-width:760px;margin:0 auto}
 button.more{font:inherit;font-weight:600;padding:12px;border-radius:10px;border:1px solid var(--acc);background:var(--accbg);color:var(--acc);cursor:pointer}
 .empty{color:var(--mut);padding:20px 0;text-align:center}
 </style></head><body>
-<header><h1>Kolkata Deals</h1><div class="sub">Every tracked in-stock product. Updated 06 Oct, 01:51 PM IST. Check the price in the app before paying.</div></header>
+<header><h1>Kolkata Deals</h1><div class="sub">Every tracked in-stock product. Updated 06 Oct, 02:00 PM IST. Check the price in the app before paying.</div></header>
 <div class="bar">
 <div class="row"><input id="q" type="search" placeholder="Search products" aria-label="Search products" autocomplete="off"></div>
 <div class="row"><select id="site" aria-label="Site"><option value="">All sites</option></select>
@@ -60,8 +60,8 @@ var fl={low:0,bh:0,bhlow:0,hist:0};
 function inr(x){return x==null?"":"\u20B9"+Math.round(x).toLocaleString("en-IN")}
 function enrich(r){var p=r[2],m=r[3],lo=r[4],av=r[5],n=r[6],bl=r[7];
  return{r:r,off:m&&m>p?(m-p)/m*100:0,
-  drop:(n>=3&&av>p)?(av-p)/av*100:0,
-  atlow:n>=3&&p<=lo*1.005&&av>p*1.03,
+  drop:(n>=3&&av>p&&av<=p*2.5)?(av-p)/av*100:0,
+  atlow:n>=3&&p<=lo*1.005&&av>p*1.03&&av<=p*2.5,
   lowr:n>=3?p/lo:9,
   bhr:bl?p/bl:9,
   bhat:bl!=null&&p<=bl*1.02};}
