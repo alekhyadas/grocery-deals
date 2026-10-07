@@ -1,18 +1,1 @@
-<!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1">
-<title>Instamart vs other sites</title><style>body{font-family:system-ui,sans-serif;margin:0;padding:10px;background:#fafafa}
-input,select{padding:8px;margin:3px;font-size:15px}.c{background:#fff;border:1px solid #ddd;border-radius:8px;padding:8px 10px;margin:6px 0}
-.n{font-weight:600}.g{color:#0a7d32;font-weight:600}.r{color:#b3261e;font-weight:600}.m{color:#666;font-size:13px}a{color:#0b57d0}</style></head><body>
-<h2>Instamart vs other sites</h2><div class=m>Updated 07 Oct, 08:00 PM. Matching is by name and pack size, so double check with the links.</div>
-<input id=q placeholder="search" style="width:60%"><select id=f><option value=all>All</option><option value=cheap>Cheaper elsewhere</option>
-<option value=best>Instamart cheapest</option><option value=only>Instamart only</option><option value=low>At its own lowest</option></select>
-<select id=s><option value=sv>Biggest saving elsewhere</option><option value=lo>Closest to own lowest</option><option value=pa>Price low-high</option></select>
-<div id=cnt class=m></div><div id=l></div><script>
-fetch("compare.json").then(r=>r.json()).then(d=>{const R=d.rows;
-function draw(){const q=document.getElementById("q").value.toLowerCase(),f=f_.value,s=s_.value;
-let a=R.filter(r=>r[0].toLowerCase().includes(q)).filter(r=>f=="all"||(f=="cheap"&&r[7]&&r[7]<r[1])||(f=="best"&&r[7]&&r[7]>=r[1])||(f=="only"&&!r[7])||(f=="low"&&r[1]<=r[3]*1.005&&r[4]>=3));
-const sv=r=>r[7]?r[1]-r[7]:-1e9,lo=r=>r[3]?r[1]/r[3]:9;
-a.sort(s=="sv"?(x,y)=>sv(y)-sv(x):s=="lo"?(x,y)=>lo(x)-lo(y):(x,y)=>x[1]-y[1]);
-cnt.textContent=a.length+" items";l.innerHTML=a.slice(0,300).map(r=>{const e=r[7]?(r[7]<r[1]?'<span class=r>Cheaper on '+r[8]+': Rs '+r[7]+'</span> <a href="'+r[9]+'">open</a>':'<span class=g>Instamart is cheapest (next: '+r[8]+' Rs '+r[7]+')</span>'):'<span class=m>Not found on other sites</span>';
-return '<div class=c><div class=n><a href="'+r[10]+'">'+r[0]+'</a></div>Instamart <b>Rs '+r[1]+'</b>'+(r[2]?' (MRP '+r[2]+')':'')+' | own lowest Rs '+r[3]+' ('+r[4]+' checks)'+(r[5]?' | BuyHatke lowest Rs '+r[5]+(r[6]?' <a href="'+r[6]+'">link</a>':''):'')+'<br>'+e+'<div class=m>checked '+r[11]+'</div></div>'}).join("")}
-const q_=document.getElementById("q"),f_=document.getElementById("f"),s_=document.getElementById("s"),cnt=document.getElementById("cnt"),l=document.getElementById("l");
-[q_,f_,s_].forEach(e=>e.oninput=draw);draw()});</script></body></html>
+<!doctype html><meta charset=utf-8><meta http-equiv=refresh content="0;url=index.html#compare"><a href="index.html#compare">Open Instamart compare</a>
