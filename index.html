@@ -49,9 +49,9 @@ td.num,th.num{text-align:right}.dot{display:inline-block;width:9px;height:9px;bo
 .note{font-size:12px;color:var(--tm);margin:6px 0 12px}
 @media(max-width:600px){h1{font-size:19px}.price{font-size:20px}}
 </style></head><body><div class="wrap">
-<header><div><h1>Kolkata Deals</h1><div class="meta">Updated 07 Oct, 04:36 PM IST &middot; <span id="cnt"></span></div></div>
+<header><div><h1>Kolkata Deals</h1><div class="meta">Updated 07 Oct, 04:47 PM IST &middot; <span id="cnt"></span></div></div>
 <button class="btn" id="theme">Light / Dark</button></header>
-<nav id="nav"><button class="tab on" data-t="overview">Overview</button><button class="tab" data-t="deals">Best deals</button><button class="tab" data-t="browse">Browse all</button><button class="tab" data-t="compare">Instamart compare</button></nav>
+<nav id="nav"><button class="tab on" data-t="overview">Overview</button><button class="tab" data-t="deals">Best deals</button><button class="tab" data-t="browse">Browse all</button><button class="tab" data-t="compare">Instamart compare</button><button class="tab" data-t="bh">BuyHatke live</button></nav>
 <div class="controls"><span class="sm">Show only items last checked within</span><select id="fr"><option value="30">latest scan only (30 min)</option><option value="75">1 hour</option><option value="180">3 hours</option><option value="1440" selected>24 hours</option><option value="5760">4 days (everything)</option></select></div>
 <div id="v-overview"></div>
 <div id="v-deals" class="hide"><div class="chips" id="dchips"></div><div class="controls"><select id="dsort"><option value="def">Sort: best deal first</option><option value="chk">Sort: last checked (newest)</option><option value="pa">Sort: lowest price</option></select></div><div class="note" id="dnote"></div><div class="chips" id="dsites"></div><div class="grid" id="dgrid"></div><button class="btn more hide" id="dmore">Show more</button></div>
@@ -61,6 +61,7 @@ td.num,th.num{text-align:right}.dot{display:inline-block;width:9px;height:9px;bo
 <div class="controls"><input type="number" id="pmin" placeholder="Min price"><input type="number" id="pmax" placeholder="Max price">
 <span class="chips" id="bflt"></span></div>
 <div id="qa"></div><div class="note" id="bnote"></div><div class="grid" id="bgrid"></div><button class="btn more hide" id="bmore">Show more</button></div>
+<div id="v-bh" class="hide"><div class="note" id="bhcnt">Loading</div><div class="controls"><select id="bhf"><option value="cheap">Cheaper on another site</option><option value="best">Ours is the lowest</option><option value="all">All checked</option></select></div><div class="grid" id="bhgrid"></div><button class="btn more hide" id="bhmore">Show more</button></div>
 <div id="v-compare" class="hide"><div class="note">Every Instamart item seen in stock in the last 7 days, matched by brand, name and pack size against the other sites and BuyHatke. Open the links to double check before buying.</div>
 <div class="controls"><input type="search" id="cq" placeholder="Search Instamart items"><select id="cf"><option value="all">All</option><option value="cheap">Cheaper elsewhere</option><option value="best">Instamart cheapest</option><option value="only">Not found elsewhere</option><option value="low">At own lowest</option></select>
 <select id="cs"><option value="sv">Biggest saving elsewhere</option><option value="lo">Closest to own lowest</option><option value="pa">Price low to high</option></select></div>
@@ -190,11 +191,19 @@ function compare(){
  $("ccnt").textContent=a.length.toLocaleString("en-IN")+" Instamart items";
  pager("cgrid","cmore",a,r=>{const e=r[7]?(r[7]<r[1]?'<b class="bad">Cheaper on '+esc(r[8])+': '+inr(r[7])+'</b> &middot; <a href="'+esc(r[9])+'" target="_blank" rel="noopener">open</a>':'<b class="good">Instamart is cheapest</b> (next: '+esc(r[8])+' '+inr(r[7])+')'):'<span class="sm">Not found on other sites</span>';
   return '<div class="card"><span class="site">Instamart</span><h3><a href="'+esc(r[10])+'" target="_blank" rel="noopener">'+esc(r[0])+'</a></h3><div class="pr"><span class="price">'+inr(r[1])+'</span>'+(r[2]&&r[2]>r[1]?'<span class="mrp">'+inr(r[2])+'</span>':'')+'</div><div class="facts">Own lowest <b>'+inr(r[3])+'</b> ('+r[4]+' checks)'+(r[5]?'<br>BuyHatke low <b>'+inr(r[5])+'</b>'+(r[6]?' &middot; <a href="'+esc(r[6])+'" target="_blank" rel="noopener">history</a>':''):'')+'<br>'+e+'</div><div class="sm">checked '+esc(r[11])+'</div></div>'},48)}
+let B=null;
+function bhlive(){
+ if(!B){fetch(`bhlive.json?${Date.now()}`).then(r=>r.json()).then(d=>{B=d;bhlive()}).catch(()=>{$("bhgrid").innerHTML=`<div class="empty">No BuyHatke results published yet.</div>`});return}
+ const f=$("bhf").value,ch=r=>r[5]!=null&&r[5]<r[2];
+ const a=B.rows.filter(r=>f==="all"||(f==="cheap"&&ch(r))||(f==="best"&&!ch(r)));
+ $("bhcnt").textContent=`${B.rows.length} products checked on BuyHatke in the last ${B.hours} hours, ${B.rows.filter(ch).length} cheaper on another site. Results appear here as the check runs. Updated ${B.updated}.`;
+ pager("bhgrid","bhmore",a,r=>`<div class="card"><span class="site">${esc(r[1])}</span><h3><a href="${esc(r[3])}" target="_blank" rel="noopener">${esc(r[0])}</a></h3><div class="pr"><span class="price">${inr(r[2])}</span></div><div class="facts">${ch(r)?`<b class="bad">Cheaper on ${esc(r[4])}: ${inr(r[5])} (save ${inr(r[2]-r[5])})</b>${r[6]?` &middot; <a href="${esc(r[6])}" target="_blank" rel="noopener">open</a>`:""}`:`<b class="good">Lowest found</b>${r[5]!=null?` (next: ${esc(r[4])} ${inr(r[5])})`:""}`}</div><div class="sm">BuyHatke checked ${fdt(r[7])}</div></div>`,48)}
+$("bhf").onchange=()=>{if(B)bhlive()};
 // ---------- routing
 function show(t){
- for(const k of ["overview","deals","browse","compare"]){$("v-"+k).classList.toggle("hide",k!==t)}
+ for(const k of ["overview","deals","browse","compare","bh"]){$("v-"+k).classList.toggle("hide",k!==t)}
  document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.t===t));
- if(t==="deals")deals();else if(t==="browse")browse();else if(t==="compare")compare();
+ if(t==="deals")deals();else if(t==="browse")browse();else if(t==="compare")compare();else if(t==="bh"){B=null;bhlive()}
  try{history.replaceState(null,"","#"+t)}catch(e){}window.scrollTo(0,0)}
 document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>show(b.dataset.t));
 $("theme").onclick=()=>{const d=document.documentElement,cur=d.dataset.theme||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light");d.dataset.theme=cur==="dark"?"light":"dark"};
@@ -202,12 +211,12 @@ let tmr;const deb=f=>()=>{clearTimeout(tmr);tmr=setTimeout(f,180)};
 $("q").oninput=deb(browse);["site","sort","pmin","pmax"].forEach(i=>$(i).oninput=deb(browse));$("cq").oninput=deb(compare);$("cf").oninput=compare;$("cs").oninput=compare;
 $("bflt").innerHTML=Object.keys(BF).map(k=>'<button class="chip" data-f="'+k+'">'+BF[k][0]+'</button>').join("");
 document.querySelectorAll("#bflt .chip").forEach(e=>e.onclick=()=>{const k=e.dataset.f;bsel.has(k)?bsel.delete(k):bsel.add(k);e.classList.toggle("on");browse()});
-$("fr").onchange=()=>{FR=+$("fr").value;if(!R.length)return;const t=(location.hash||"#overview").slice(1);overview();show(["deals","browse","compare"].includes(t)?t:"overview")};$("dsort").onchange=deals;
+$("fr").onchange=()=>{FR=+$("fr").value;if(!R.length)return;const t=(location.hash||"#overview").slice(1);overview();show(["deals","browse","compare","bh"].includes(t)?t:"overview")};$("dsort").onchange=deals;
 fetch("data.json").then(r=>r.json()).then(d=>{R=d.rows;NOW=Math.max(d.now||0,Math.round(Date.now()/60000));
  $("cnt").textContent=R.length.toLocaleString("en-IN")+" products tracked";
  const sc={};R.forEach(r=>sc[r[0]]=(sc[r[0]]||0)+1);
  $("site").innerHTML='<option value="All">All sites</option>'+Object.keys(sc).sort((a,b)=>sc[b]-sc[a]).map(s=>'<option value="'+esc(s)+'">'+esc(s)+' ('+sc[s].toLocaleString("en-IN")+')</option>').join("");
- const t=(location.hash||"#overview").slice(1);overview();show(["deals","browse","compare"].includes(t)?t:"overview");
+ const t=(location.hash||"#overview").slice(1);overview();show(["deals","browse","compare","bh"].includes(t)?t:"overview");
  fetch("history.json").then(r=>r.json()).then(h=>{H=h;drawSparks()}).catch(()=>{})
 }).catch(e=>{$("v-overview").innerHTML='<div class="empty">Could not load data. '+esc(e)+'</div>'});
 </script></body></html>
