@@ -49,12 +49,12 @@ td.num,th.num{text-align:right}.dot{display:inline-block;width:9px;height:9px;bo
 .note{font-size:12px;color:var(--tm);margin:6px 0 12px}
 @media(max-width:600px){h1{font-size:19px}.price{font-size:20px}}
 </style></head><body><div class="wrap">
-<header><div><h1>Kolkata Deals</h1><div class="meta">Updated 08 Oct, 10:00 PM IST &middot; <span id="cnt"></span></div></div>
+<header><div><h1>Kolkata Deals</h1><div class="meta">Updated 08 Oct, 11:07 PM IST &middot; <span id="cnt"></span></div></div>
 <button class="btn" id="theme">Light / Dark</button></header>
 <nav id="nav"><button class="tab on" data-t="overview">Overview</button><button class="tab" data-t="deals">Best deals</button><button class="tab" data-t="browse">Browse all</button><button class="tab" data-t="compare">Instamart compare</button><button class="tab" data-t="bh">BuyHatke live</button></nav>
 <div class="controls"><span class="sm">Show only items last checked within</span><select id="fr"><option value="30">latest scan only (30 min)</option><option value="75">1 hour</option><option value="180">3 hours</option><option value="1440" selected>24 hours</option><option value="5760">4 days (everything)</option></select></div>
 <div id="v-overview"></div>
-<div id="v-deals" class="hide"><div class="chips" id="dchips"></div><div class="controls"><select id="dsort"><option value="def">Sort: best deal first</option><option value="chk">Sort: last checked (newest)</option><option value="pa">Sort: lowest price</option></select></div><div class="note" id="dnote"></div><div class="chips" id="dsites"></div><div class="grid" id="dgrid"></div><button class="btn more hide" id="dmore">Show more</button></div>
+<div id="v-deals" class="hide"><div class="chips" id="dchips"></div><div class="controls"><input type="search" id="dq" placeholder="Search within these deals, e.g. earbuds, makhana" style="min-width:260px"><select id="dsort"><option value="def">Sort: best deal first</option><option value="chk">Sort: last checked (newest)</option><option value="pa">Sort: lowest price</option></select></div><div class="note" id="dnote"></div><div class="chips" id="dsites"></div><div class="grid" id="dgrid"></div><button class="btn more hide" id="dmore">Show more</button></div>
 <div id="v-browse" class="hide">
 <div class="controls"><input type="search" id="q" placeholder="Search any product, e.g. amul butter, basmati rice 5 kg"><select id="site"></select>
 <select id="sort"><option value="chk">Last checked (newest first)</option><option value="rel">Best match</option><option value="pa">Price low to high</option><option value="pd">Price high to low</option><option value="unit">Cheapest per kg / L / piece</option><option value="drop">Biggest drop vs usual</option><option value="off">Biggest discount off MRP</option><option value="save">Biggest saving vs other sites</option><option value="new">Changed most recently</option><option value="az">A to Z</option></select></div>
@@ -156,6 +156,7 @@ function deals(){
  const sc={};list.forEach(x=>sc[x[0][0]]=(sc[x[0][0]]||0)+1);
  $("dsites").innerHTML=['All',...Object.keys(sc).sort((a,b)=>sc[b]-sc[a])].map(s=>'<button class="chip '+(s===dealSite?'on':'')+'" data-s="'+esc(s)+'">'+esc(s)+(s==="All"?"":" ("+sc[s]+")")+'</button>').join("");
  if(dealSite!=="All")list=list.filter(x=>x[0][0]===dealSite);
+ {const dq=$("dq").value.toLowerCase().split(/\s+/).filter(Boolean);if(dq.length)list=list.filter(x=>{const n=x[0][1].toLowerCase();return dq.every(w=>n.includes(w))})}
  {const ds=$("dsort").value;list.sort(ds==="chk"?(a,b)=>b[0][11]-a[0][11]:ds==="pa"?(a,b)=>a[0][2]-b[0][2]:(a,b)=>d[2](a[0],b[0]))}
  $("dnote").textContent=list.length.toLocaleString("en-IN")+" items. "+d[3];
  pager("dgrid","dmore",list,x=>card(x[0],x[1]),48);
@@ -211,7 +212,7 @@ let tmr;const deb=f=>()=>{clearTimeout(tmr);tmr=setTimeout(f,180)};
 $("q").oninput=deb(browse);["site","sort","pmin","pmax"].forEach(i=>$(i).oninput=deb(browse));$("cq").oninput=deb(compare);$("cf").oninput=compare;$("cs").oninput=compare;
 $("bflt").innerHTML=Object.keys(BF).map(k=>'<button class="chip" data-f="'+k+'">'+BF[k][0]+'</button>').join("");
 document.querySelectorAll("#bflt .chip").forEach(e=>e.onclick=()=>{const k=e.dataset.f;bsel.has(k)?bsel.delete(k):bsel.add(k);e.classList.toggle("on");browse()});
-$("fr").onchange=()=>{FR=+$("fr").value;if(!R.length)return;const t=(location.hash||"#overview").slice(1);overview();show(["deals","browse","compare","bh"].includes(t)?t:"overview")};$("dsort").onchange=deals;
+$("fr").onchange=()=>{FR=+$("fr").value;if(!R.length)return;const t=(location.hash||"#overview").slice(1);overview();show(["deals","browse","compare","bh"].includes(t)?t:"overview")};$("dsort").onchange=deals;$("dq").oninput=deals;
 fetch("data.json").then(r=>r.json()).then(d=>{R=d.rows;NOW=Math.max(d.now||0,Math.round(Date.now()/60000));
  $("cnt").textContent=R.length.toLocaleString("en-IN")+" products tracked";
  const sc={};R.forEach(r=>sc[r[0]]=(sc[r[0]]||0)+1);
